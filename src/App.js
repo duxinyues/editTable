@@ -3,197 +3,64 @@
  * @Author: 1638877065@qq.com
  * @Date: 2021-06-29 23:50:37
  * @LastEditors: 1638877065@qq.com
- * @LastEditTime: 2021-07-06 00:24:06
+ * @LastEditTime: 2021-07-06 00:31:09
  * @FilePath: \edittable\src\App.js
  * @Description: 编辑表格
  */
-import React, { useState,useEffect } from 'react';
-import { Table, Input, Form } from 'antd';
-const originData = [];
-document.title = "编辑表格"
-for (let i = 0; i < 5; i++) {
-  originData.push({
-    key: i.toString(),
-    name: `Edrward ${i}`,
-    age: 32,
-    address: `London Park no. ${i}`,
-  });
-}
-
-const EditableCell = ({
-  editing,
-  dataIndex,
-  title,
-  inputType,
-  record,
-  index,
-  children,
-  ...restProps
-}) => {
- 
-  const changeRow = ({target:{value,id}})=>{
-    console.log("record==",record)
-    console.log("====",value,id)
-    if(id==="age"+record.key){
-      console.log("000000")
-    }
-  }
-  return (
-    <td {...restProps}>
-      {editing ? (
-        <Form.Item
-          name={dataIndex+record.key}
-          style={{
-            margin: 0,
-          }}
-          rules={[
-            {
-              required: true,
-              message: `Please Input ${dataIndex+record.key}!`,
-            },
-          ]}
-        >
-         <Input onChange={changeRow} />
-        </Form.Item>
-      ) : (
-        children
-      )}
-    </td>
-  );
-};
+import React, { useState } from 'react';
+import { Table, Input } from 'antd';
 
 const EditableTable = () => {
-  const [form] = Form.useForm();
-  const [data, setData] = useState(originData);
-  useEffect(()=>{
-    data.map((item)=>{})
-  },[])
-
-  const edit = (record) => {
-    console.log(record)
-    // form.setFieldsValue({
-    //   name: '12',
-    //   age: '2',
-    //   address: '43',
-    //   ...record,
-    // });
-  };
-
- 
-
-  const save = async (key) => {
-    try {
-      const row = await form.validateFields();
-      console.log("==",row)
-    } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
+  const [data, setData] = useState([{ title1: "", title2: "", key: 0 }]);
+  const [records, setRecords] = useState({})
+  const changeInput = (name, value, inputName) => {
+    console.log(name, value)
+    const _data = data;
+    const str = { title1: "", title2: "", key: new Date().getTime() }
+    str[name] = value
+    console.log(str)
+    if (records.key === 0 && inputName === "title1") {
+      _data.unshift(str);
+      console.log("_data", _data)
+      setData([..._data])
     }
-  };
+    console.log(_data)
+  }
 
   const columns = [
     {
-      title: 'name',
-      dataIndex: 'name',
-      width: '25%',
-      editable: true,
-    },
-    {
-      title: 'age',
-      dataIndex: 'age',
-      width: '15%',
-      editable: true,
-      onCell:(record,index)=>{
-       console.log("设置列")
-      }
-    },
-    {
-      title: 'address',
-      dataIndex: 'address',
-      width: '40%',
-      editable: true,
-    },
-  ];
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
+      title: "标题1",
+      dataIndex: "title1",
+      render: (index, record) => (<Input defaultValue={record.title1} name="title1" onPressEnter={({ target: { value, name } }) => {
+        console.log("index==", index)
+        console.log("6789-", record)
+        changeInput("title1", value, name)
+      }} allowClear />)
+    }, {
+      title: "标题2",
+      dataIndex: "title2",
+      render: (index, record) => (<Input defaultValue={record.title2} onPressEnter={({ target: { value } }) => {
+        changeInput("title2", value)
+      }} allowClear />)
     }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        inputType: col.dataIndex === 'age' ? 'number' : 'text',
-        dataIndex: col.dataIndex,
-        title: col.title,
-        editing: true,
-      }),
-    };
-  });
-  return (<>
-    <Form form={form} component={false}>
+  ]
+  return <React.Fragment>
+    <div style={{ width: "500px" }}>
       <Table
-        components={{
-          body: {
-            cell: ({
-              editing,
-              dataIndex,
-              title,
-              inputType,
-              record,
-              index,
-              children,
-              ...restProps
-            }) => {
-             const _data = data
-              const changeRow = ({target:{value,id}})=>{
-                // console.log("record==",record)
-                // console.log("====",value,id)
-                console.log(data)
-                _data.map((item)=>{
-                  if(item.key===record.key){
-                    item.address = value
-                  }
-                });
-                setData([..._data])
-              }
-              return (
-                <td {...restProps}>
-                  {editing ? (
-                    <Form.Item
-                      name={dataIndex+record.key}
-                      style={{
-                        margin: 0,
-                      }}
-                      rules={[
-                        {
-                          required: true,
-                          message: `Please Input ${dataIndex+record.key}!`,
-                        },
-                      ]}
-                    >
-                     <Input onChange={changeRow} />
-                    </Form.Item>
-                  ) : (
-                    children
-                  )}
-                </td>
-              );
-            }
-          },
-        }}
+        columns={columns}
         dataSource={data}
-        columns={mergedColumns}
-        rowClassName="editable-row"
+        rowKey={(record, index) => record.key}
+        pagination={false}
         onRow={record => {
           return {
             onClick: event => {
-              edit(record)
+              setRecords(record)
             }, // 点击行
           };
         }}
       />
-    </Form>
-      <button onClick = {save}>保存</button>
-    </>
-  );
+    </div>
+
+  </React.Fragment>
 };
-  export  default EditableTable
+export default EditableTable
