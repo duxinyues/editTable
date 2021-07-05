@@ -3,12 +3,12 @@
  * @Author: 1638877065@qq.com
  * @Date: 2021-06-29 23:50:37
  * @LastEditors: 1638877065@qq.com
- * @LastEditTime: 2021-06-30 00:56:57
+ * @LastEditTime: 2021-07-06 00:24:06
  * @FilePath: \edittable\src\App.js
- * @Description: b编辑表格
+ * @Description: 编辑表格
  */
 import React, { useState,useEffect } from 'react';
-import { Table, Input, InputNumber, Form } from 'antd';
+import { Table, Input, Form } from 'antd';
 const originData = [];
 document.title = "编辑表格"
 for (let i = 0; i < 5; i++) {
@@ -30,26 +30,30 @@ const EditableCell = ({
   children,
   ...restProps
 }) => {
-// console.log("dataIndex:",dataIndex)
-// console.log("title:",title)
-// console.log("inputType:",inputType)
-// console.log("index:",index)
+ 
+  const changeRow = ({target:{value,id}})=>{
+    console.log("record==",record)
+    console.log("====",value,id)
+    if(id==="age"+record.key){
+      console.log("000000")
+    }
+  }
   return (
     <td {...restProps}>
       {editing ? (
         <Form.Item
-          name={dataIndex+index}
+          name={dataIndex+record.key}
           style={{
             margin: 0,
           }}
           rules={[
             {
               required: true,
-              message: `Please Input ${title}!`,
+              message: `Please Input ${dataIndex+record.key}!`,
             },
           ]}
         >
-         <Input />
+         <Input onChange={changeRow} />
         </Form.Item>
       ) : (
         children
@@ -61,20 +65,18 @@ const EditableCell = ({
 const EditableTable = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState(originData);
-  const [editingKey, setEditingKey] = useState([0,1,2,3]);
   useEffect(()=>{
     data.map((item)=>{})
   },[])
 
   const edit = (record) => {
     console.log(record)
-    console.log(data)
-    form.setFieldsValue({
-      name: '12',
-      age: '2',
-      address: '43',
-      ...record,
-    });
+    // form.setFieldsValue({
+    //   name: '12',
+    //   age: '2',
+    //   address: '43',
+    //   ...record,
+    // });
   };
 
  
@@ -82,6 +84,7 @@ const EditableTable = () => {
   const save = async (key) => {
     try {
       const row = await form.validateFields();
+      console.log("==",row)
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
     }
@@ -99,6 +102,9 @@ const EditableTable = () => {
       dataIndex: 'age',
       width: '15%',
       editable: true,
+      onCell:(record,index)=>{
+       console.log("设置列")
+      }
     },
     {
       title: 'address',
@@ -111,7 +117,6 @@ const EditableTable = () => {
     if (!col.editable) {
       return col;
     }
-    console.log("col==",col)
     return {
       ...col,
       onCell: (record) => ({
@@ -128,12 +133,63 @@ const EditableTable = () => {
       <Table
         components={{
           body: {
-            cell: EditableCell,
+            cell: ({
+              editing,
+              dataIndex,
+              title,
+              inputType,
+              record,
+              index,
+              children,
+              ...restProps
+            }) => {
+             const _data = data
+              const changeRow = ({target:{value,id}})=>{
+                // console.log("record==",record)
+                // console.log("====",value,id)
+                console.log(data)
+                _data.map((item)=>{
+                  if(item.key===record.key){
+                    item.address = value
+                  }
+                });
+                setData([..._data])
+              }
+              return (
+                <td {...restProps}>
+                  {editing ? (
+                    <Form.Item
+                      name={dataIndex+record.key}
+                      style={{
+                        margin: 0,
+                      }}
+                      rules={[
+                        {
+                          required: true,
+                          message: `Please Input ${dataIndex+record.key}!`,
+                        },
+                      ]}
+                    >
+                     <Input onChange={changeRow} />
+                    </Form.Item>
+                  ) : (
+                    children
+                  )}
+                </td>
+              );
+            }
           },
         }}
         dataSource={data}
         columns={mergedColumns}
         rowClassName="editable-row"
+        onRow={record => {
+          return {
+            onClick: event => {
+              edit(record)
+            }, // 点击行
+          };
+        }}
       />
     </Form>
       <button onClick = {save}>保存</button>
