@@ -1,66 +1,162 @@
 /*
- * @FileName: 
+ * @FileName:
  * @Author: 1638877065@qq.com
  * @Date: 2021-06-29 23:50:37
- * @LastEditors: 1638877065@qq.com
- * @LastEditTime: 2021-07-06 00:31:09
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-07-10 14:28:33
  * @FilePath: \edittable\src\App.js
  * @Description: 编辑表格
  */
-import React, { useState } from 'react';
-import { Table, Input } from 'antd';
-
+import React, { useState } from "react";
+import { Table, Input, Form, Button } from "antd";
+import "./App.css";
 const EditableTable = () => {
-  const [data, setData] = useState([{ title1: "", title2: "", key: 0 }]);
-  const [records, setRecords] = useState({})
-  const changeInput = (name, value, inputName) => {
-    console.log(name, value)
+  const [form] = Form.useForm();
+  const [data, setData] = useState([]);
+  const [saveData, setsaveData] = useState([]);
+  const addData = () => {
     const _data = data;
-    const str = { title1: "", title2: "", key: new Date().getTime() }
-    str[name] = value
-    console.log(str)
-    if (records.key === 0 && inputName === "title1") {
-      _data.unshift(str);
-      console.log("_data", _data)
-      setData([..._data])
+    _data.push({
+      key: new Date().getTime(),
+      name: "",
+      age: "",
+      address: "",
+    });
+    setData([..._data]);
+  };
+
+  const save = async (key) => {
+    const _data = data;
+    try {
+      await form.validateFields();
+      form.setFieldsValue();
+      setData([])
+      setsaveData([..._data]);
+    } catch (errInfo) {
+      console.log("Validate Failed:", errInfo);
     }
-    console.log(_data)
-  }
+  };
 
   const columns = [
     {
-      title: "标题1",
-      dataIndex: "title1",
-      render: (index, record) => (<Input defaultValue={record.title1} name="title1" onPressEnter={({ target: { value, name } }) => {
-        console.log("index==", index)
-        console.log("6789-", record)
-        changeInput("title1", value, name)
-      }} allowClear />)
-    }, {
-      title: "标题2",
-      dataIndex: "title2",
-      render: (index, record) => (<Input defaultValue={record.title2} onPressEnter={({ target: { value } }) => {
-        changeInput("title2", value)
-      }} allowClear />)
+      title: "name",
+      dataIndex: "name",
+      width: "25%",
+      editable: true,
+    },
+    {
+      title: "age",
+      dataIndex: "age",
+      width: "15%",
+      editable: true,
+    },
+    {
+      title: "address",
+      dataIndex: "address",
+      width: "40%",
+      editable: true,
+    },
+  ];
+  const mergedColumns = columns.map((col) => {
+    if (!col.editable) {
+      return col;
     }
-  ]
-  return <React.Fragment>
-    <div style={{ width: "500px" }}>
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey={(record, index) => record.key}
-        pagination={false}
-        onRow={record => {
-          return {
-            onClick: event => {
-              setRecords(record)
-            }, // 点击行
-          };
-        }}
-      />
-    </div>
-
-  </React.Fragment>
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        inputType: col.dataIndex === "age" ? "number" : "text",
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: true,
+      }),
+    };
+  });
+  return (
+    <>
+      <div className="btn">
+        <Button onClick={addData}>添加数据</Button>
+        <Button onClick={save}>提交</Button>
+      </div>
+      <div className="container">
+        <Form form={form} component={false}>
+          <Table
+            style={{ width: "660px" }}
+            components={{
+              body: {
+                cell: ({
+                  editing,
+                  dataIndex,
+                  title,
+                  inputType,
+                  record,
+                  index,
+                  children,
+                  ...restProps
+                }) => {
+                  const changeRow = ({ target: { value, id } }) => {
+                    data.map((item) => {
+                      if (item.key === record.key) {
+                        if (id.includes("name")) {
+                          item.name = value;
+                        }
+                        if (id.includes("age")) {
+                          item.age = value;
+                        }
+                        if (id.includes("address")) {
+                          item.address = value;
+                        }
+                      }
+                      return value;
+                    });
+                  };
+                  return (
+                    <td {...restProps}>
+                      {editing ? (
+                        <Form.Item
+                          name={dataIndex + record.key}
+                          style={{
+                            margin: 0,
+                          }}
+                          rules={[
+                            {
+                              required: true,
+                              message: `Please Input ${
+                                dataIndex + record.key
+                              }!`,
+                            },
+                          ]}
+                        >
+                          <Input onBlur={changeRow} allowClear/>
+                        </Form.Item>
+                      ) : (
+                        children
+                      )}
+                    </td>
+                  );
+                },
+              },
+            }}
+            dataSource={data}
+            columns={mergedColumns}
+            rowClassName="editable-row"
+            rowKey={(record) => record.key}
+          />
+        </Form>
+        <div className="preview-data">
+          <h3>预览数据</h3>
+          <Table
+            columns={[
+              { title: "姓名", dataIndex: "name" },
+              { title: "年龄", dataIndex: "age" },
+              { title: "地址", dataIndex: "address" },
+            ]}
+            dataSource={saveData}
+            rowKey={(record) => record.key}
+          />
+        </div>
+      </div>
+    </>
+  );
 };
-export default EditableTable
+export default EditableTable;
