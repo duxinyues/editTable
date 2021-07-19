@@ -2,18 +2,39 @@
  * @FileName:
  * @Author: 1638877065@qq.com
  * @Date: 2021-06-29 23:50:37
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-07-10 14:28:33
+ * @LastEditors: yongyuan at <yongyuan253015@gmail.com>
+ * @LastEditTime: 2021-07-19 21:48:26
  * @FilePath: \edittable\src\App.js
  * @Description: 编辑表格
  */
 import React, { useState } from "react";
 import { Table, Input, Form, Button } from "antd";
+import { PlusCircleOutlined } from '@ant-design/icons';
 import "./App.css";
 const EditableTable = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [saveData, setsaveData] = useState([]);
+  const [columns, setColumns] = useState([
+    {
+      title: "name",
+      dataIndex: "name",
+      width: "25%",
+      editable: true,
+    },
+    {
+      title: () => <span>age <PlusCircleOutlined style={{ color: "red" }} onClick={addColumns} /></span>,
+      dataIndex: "age",
+      width: "15%",
+      editable: true,
+    },
+    {
+      title: "address",
+      dataIndex: "address",
+      width: "40%",
+      editable: true,
+    },
+  ])
   const addData = () => {
     const _data = data;
     _data.push({
@@ -37,26 +58,9 @@ const EditableTable = () => {
     }
   };
 
-  const columns = [
-    {
-      title: "name",
-      dataIndex: "name",
-      width: "25%",
-      editable: true,
-    },
-    {
-      title: "age",
-      dataIndex: "age",
-      width: "15%",
-      editable: true,
-    },
-    {
-      title: "address",
-      dataIndex: "address",
-      width: "40%",
-      editable: true,
-    },
-  ];
+  const addColumns = () => {
+
+  }
   const mergedColumns = columns.map((col) => {
     if (!col.editable) {
       return col;
@@ -121,13 +125,12 @@ const EditableTable = () => {
                           rules={[
                             {
                               required: true,
-                              message: `Please Input ${
-                                dataIndex + record.key
-                              }!`,
+                              message: `Please Input ${dataIndex + record.key
+                                }!`,
                             },
                           ]}
                         >
-                          <Input onBlur={changeRow} allowClear/>
+                          <Input onBlur={changeRow} allowClear />
                         </Form.Item>
                       ) : (
                         children
