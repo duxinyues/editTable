@@ -3,12 +3,12 @@
  * @Author: 1638877065@qq.com
  * @Date: 2021-06-29 23:50:37
  * @LastEditors: yongyuan at <yongyuan253015@gmail.com>
- * @LastEditTime: 2021-07-19 21:48:26
+ * @LastEditTime: 2021-07-19 22:35:44
  * @FilePath: \edittable\src\App.js
  * @Description: 编辑表格
  */
 import React, { useState } from "react";
-import { Table, Input, Form, Button } from "antd";
+import { Table, Input, Form, Button, message } from "antd";
 import { PlusCircleOutlined } from '@ant-design/icons';
 import "./App.css";
 const EditableTable = () => {
@@ -19,19 +19,16 @@ const EditableTable = () => {
     {
       title: "name",
       dataIndex: "name",
-      width: "25%",
       editable: true,
     },
     {
       title: () => <span>age <PlusCircleOutlined style={{ color: "red" }} onClick={addColumns} /></span>,
       dataIndex: "age",
-      width: "15%",
       editable: true,
     },
     {
       title: "address",
       dataIndex: "address",
-      width: "40%",
       editable: true,
     },
   ])
@@ -41,6 +38,12 @@ const EditableTable = () => {
       key: new Date().getTime(),
       name: "",
       age: "",
+      age1: "",
+      age2: "",
+      age3: "",
+      age4: "",
+      age5: "",
+      age6: "",
       address: "",
     });
     setData([..._data]);
@@ -53,13 +56,35 @@ const EditableTable = () => {
       form.setFieldsValue();
       setData([])
       setsaveData([..._data]);
+      console.log("数据==", _data)
     } catch (errInfo) {
       console.log("Validate Failed:", errInfo);
     }
   };
 
   const addColumns = () => {
+    const _columns = columns;
+    const age6 = columns.findIndex((item) => item.dataIndex === "age6");
+    if (age6 > 0) {
+      message.warning("最多只能添加6组年龄");
+      return
+    }
+    const middleArr = columns.filter((item) => item.dataIndex.includes("age"));
+    let obj = {};
 
+    middleArr.map((item) => {
+      const index = _columns.findIndex((its) => its.dataIndex === item.dataIndex);
+      _columns.splice(index + 1, 0, {
+        title: "age" + index,
+        dataIndex: "age" + index,
+        editable: true,
+      })
+    })
+    const resetArr = _columns.reduce(function (item, next) {
+      const str = obj[next.dataIndex] ? '' : obj[next.dataIndex] = true && item.push(next);
+      return item;
+    }, []);
+    setColumns([...resetArr])
   }
   const mergedColumns = columns.map((col) => {
     if (!col.editable) {
@@ -107,6 +132,24 @@ const EditableTable = () => {
                         if (id.includes("age")) {
                           item.age = value;
                         }
+                        if (id.includes("age1")) {
+                          item.age1 = value;
+                        }
+                        if (id.includes("age2")) {
+                          item.age2 = value;
+                        }
+                        if (id.includes("age3")) {
+                          item.age3 = value;
+                        }
+                        if (id.includes("age4")) {
+                          item.age4 = value;
+                        }
+                        if (id.includes("age5")) {
+                          item.age5 = value;
+                        }
+                        if (id.includes("age6")) {
+                          item.age6 = value;
+                        }
                         if (id.includes("address")) {
                           item.address = value;
                         }
@@ -149,11 +192,7 @@ const EditableTable = () => {
         <div className="preview-data">
           <h3>预览数据</h3>
           <Table
-            columns={[
-              { title: "姓名", dataIndex: "name" },
-              { title: "年龄", dataIndex: "age" },
-              { title: "地址", dataIndex: "address" },
-            ]}
+            columns={columns}
             dataSource={saveData}
             rowKey={(record) => record.key}
           />
