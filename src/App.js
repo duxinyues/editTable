@@ -3,7 +3,7 @@
  * @Author: 1638877065@qq.com
  * @Date: 2021-06-29 23:50:37
  * @LastEditors: yongyuan at <yongyuan253015@gmail.com>
- * @LastEditTime: 2021-07-19 22:35:44
+ * @LastEditTime: 2021-07-19 22:39:01
  * @FilePath: \edittable\src\App.js
  * @Description: 编辑表格
  */
@@ -80,6 +80,7 @@ const EditableTable = () => {
         editable: true,
       })
     })
+    // 数组去重
     const resetArr = _columns.reduce(function (item, next) {
       const str = obj[next.dataIndex] ? '' : obj[next.dataIndex] = true && item.push(next);
       return item;
