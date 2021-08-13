@@ -2,9 +2,9 @@
  * @FileName:
  * @Author: 1638877065@qq.com
  * @Date: 2021-06-29 23:50:37
- * @LastEditors: yongyuan at <yongyuan253015@gmail.com>
- * @LastEditTime: 2021-07-19 22:39:01
- * @FilePath: \edittable\src\App.js
+ * @LastEditors: 1638877065@qq.com
+ * @LastEditTime: 2021-08-12 14:09:34
+ * @FilePath: \editTable\src\App.js
  * @Description: 编辑表格
  */
 import React, { useState } from "react";
@@ -109,7 +109,7 @@ const EditableTable = () => {
         <Button onClick={save}>提交</Button>
       </div>
       <div className="container">
-        <Form form={form} component={false}>
+        {/* <Form form={form} component={false}> */}
           <Table
             style={{ width: "660px" }}
             components={{
@@ -189,7 +189,7 @@ const EditableTable = () => {
             rowClassName="editable-row"
             rowKey={(record) => record.key}
           />
-        </Form>
+        {/* </Form> */}
         <div className="preview-data">
           <h3>预览数据</h3>
           <Table
