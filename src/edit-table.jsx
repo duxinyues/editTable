@@ -190,9 +190,9 @@ const EditableTable = () => {
                                         if (item.key === record.key) {
                                             if (id.includes("name")) {
                                                 item.name = value;
-                                                item.address = "97089";
+                                                item.address = item.key+"这是联动计算";
                                                 form.setFieldsValue({
-                                                    ["address"+item.key]: value+"60785609",
+                                                    ["address"+item.key]: item.key+"这是联动计算",
                                                 });
                                             }
                                             if (id.includes("age")) {
