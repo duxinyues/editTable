@@ -1,60 +1,9 @@
-import React, { useState } from 'react';
-import { Table, Input, InputNumber, Popconfirm, Form, Typography } from 'antd';
+import React from 'react';
+import { Table, Input, Form, Typography } from 'antd';
 import { list } from "./data"
 
-const EditableCell = ({
-    editing,
-    dataIndex,
-    title,
-    inputType,
-    record,
-    index,
-    children,
-    form,
-    ...restProps
-}) => {
-    return (
-        <td {...restProps}>
-            {editing ? (
-                <Form.Item
-                    name={dataIndex}
-                    style={{
-                        margin: 0,
-                    }}
-                    rules={[
-                        {
-                            required: true,
-                            message: `Please Input ${title}!`,
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-            ) : (
-                children
-            )
-            }
-        </td >
-    );
-};
-
 export const EditableTable = () => {
-    const [form] = Form.useForm();
-    const [data, setData] = useState(list);
-    const [editingKey, setEditingKey] = useState('');
-    console.log("form", form)
-    const isEditing = (record) => record.key === editingKey;
-
-    const edit = (record) => {
-        form.setFieldsValue({
-            name: '',
-            age: '',
-            address: '',
-            ...record,
-        });
-        setEditingKey(record.key);
-    };
-
+    const str = { data: list }
     const columns = [
         {
             title: 'name',
@@ -100,45 +49,28 @@ export const EditableTable = () => {
             }),
         };
     });
-    // return <table>
-    //     <thead>
-    //         <tr>
-    //             <td>name</td>
-    //             <td>content</td>
-    //             <td>age</td>
-    //             <td>operation</td>
-    //         </tr>
-    //     </thead>
-    //     <tbody>
-    //         {
-    //             data.map((record) => {
-    //                 form.setFieldsValue({ ...record })
-    //                 return <tr>
-    //                     <ItemForm record={record} />
-    //                 </tr>
-
-    //             })
-    //         }
-    //     </tbody>
-    // </table>
+    console.log("str===", str)
     return (
-
         <Table
             components={{
                 body: {
-                    cell: EditableCell,
                     row: (params) => {
-                        console.log("params", params)
-
                         const record = params.children[0].props.record
                         return <tr>
-                            <ItemForm record={record} />
+                            <ItemForm record={record} onChange={(value) => {
+                                str.data.forEach(element => {
+                                    if (element.id == value.id) {
+                                        element.content = value.content;
+                                        element.age = Number(value.content) + Number(element.age)
+                                    }
+                                });
+                            }} />
                         </tr>
                     }
                 },
             }}
             bordered
-            dataSource={data}
+            dataSource={list}
             columns={mergedColumns}
             rowClassName="editable-row"
             pagination={false}
@@ -147,9 +79,10 @@ export const EditableTable = () => {
     );
 };
 
-const ItemForm = ({ record }) => {
+const ItemForm = ({ record, onChange }) => {
     const [form] = Form.useForm();
     form.setFieldsValue({ ...record })
+
     return <Form form={form} component={false}>
         <td>
             <Form.Item
@@ -157,7 +90,7 @@ const ItemForm = ({ record }) => {
                 style={{
                     margin: 0,
                 }}
-
+                messageVariables={{ another: 'good' }}
             >
                 <Input />
             </Form.Item>
@@ -169,7 +102,16 @@ const ItemForm = ({ record }) => {
                     margin: 0,
                 }}
                 onChange={({ target: { value } }) => {
-                    form.setFieldsValue({ ...record, content: value, age: Number(value) + 908 })
+                    onChange({
+                        ...record,
+                        content: value,
+                        age: Number(value) + 908
+                    })
+                    form.setFieldsValue({
+                        ...record,
+                        content: value,
+                        age: Number(value) + 908
+                    })
                 }}
             >
                 <Input />
