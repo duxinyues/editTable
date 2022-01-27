@@ -1,9 +1,10 @@
-import React from 'react';
-import { Table, Input, Form, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Table, Input, Form, Typography, Checkbox } from 'antd';
 import { list } from "./data"
 
 export const EditableTable = () => {
-    const str = { data: list }
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [data, setData] = useState(list);
     const columns = [
         {
             title: 'name',
@@ -37,7 +38,6 @@ export const EditableTable = () => {
         if (!col.editable) {
             return col;
         }
-
         return {
             ...col,
             onCell: (record) => ({
@@ -49,7 +49,21 @@ export const EditableTable = () => {
             }),
         };
     });
-    console.log("str===", str)
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (rowKeys) => {
+            console.log("rowKeys", rowKeys);
+            setSelectedRowKeys(rowKeys);
+            let newList = list.map(item => {
+                if (rowKeys.length > 0) {
+                    return { ...item, checked: true }
+                } else {
+                    return { ...item, checked: false }
+                }
+            });
+            setData([...newList])
+        },
+    }
     return (
         <Table
             components={{
@@ -58,8 +72,11 @@ export const EditableTable = () => {
                         const record = params.children[0].props.record
                         return <tr>
                             <ItemForm record={record} onChange={(value) => {
-                                str.data.forEach(element => {
-                                    if (element.id == value.id) {
+                                if(!value.checked){
+                                    
+                                }
+                                data.forEach(element => {
+                                    if (element.id === value.id) {
                                         element.content = value.content;
                                         element.age = Number(value.content) + Number(element.age)
                                     }
@@ -69,21 +86,27 @@ export const EditableTable = () => {
                     }
                 },
             }}
-            bordered
-            dataSource={list}
+            dataSource={data}
             columns={mergedColumns}
             rowClassName="editable-row"
             pagination={false}
             rowKey={record => record.id}
+            rowSelection={rowSelection}
         />
     );
 };
 
 const ItemForm = ({ record, onChange }) => {
+    console.log("添加", record)
     const [form] = Form.useForm();
     form.setFieldsValue({ ...record })
 
     return <Form form={form} component={false}>
+        <td>
+            <Checkbox checked={record.checked} onChange={({ target: { value } }) => {
+                onChange({ ...record, checked: value })
+            }} />
+        </td>
         <td>
             <Form.Item
                 name='name'

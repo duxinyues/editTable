@@ -1,17 +1,8 @@
-/*
- * @FileName: 
- * @Author: 1638877065@qq.com
- * @Date: 2021-06-29 23:50:37
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-08 22:24:10
- * @FilePath: \edittable\src\index.js
- * @Description: 
- */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import {EditableTable} from './edit';
-// import EditableTable from "./edit-table"
+// import {EditableTable} from './edit';
+import EditableTable from "./edit-table"
 // import AutoTable  from './autoTable';
 import reportWebVitals from './reportWebVitals';
 ReactDOM.render(
