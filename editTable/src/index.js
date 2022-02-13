@@ -2,7 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 // import {EditableTable} from './edit';
-import EditableTable from "./edit-table"
+// import EditableTable from "./edit-table"
+import EditableTable  from "./editCell"
 // import AutoTable  from './autoTable';
 import reportWebVitals from './reportWebVitals';
 ReactDOM.render(
